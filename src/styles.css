@@ -1,0 +1,30 @@
+.kaktus-container {
+  position: relative;
+  background: #fff;
+  border-radius: 4px;
+}
+.kaktus-editor {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100px;
+  border: none;
+  font-family: monospace;
+  font-size: 14px;
+  resize: none;
+  padding: 8px;
+}
+
+.kaktus-list {
+  position: absolute;
+  background: #ccc;
+  top: 0;
+  left: 0;
+}
+.kaktus-list-item {
+  padding: 4px 12px;
+  word-wrap: no-wrap;
+}
+.kaktus-list-item-selected {
+  background: green;
+}
