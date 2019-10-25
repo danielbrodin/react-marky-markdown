@@ -1,8 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 import { useMeasure } from './hooks/useMeasure';
 import { useOnClickOutside } from './hooks/useOnClickOutside';
-import "./styles.css";
+import { getWordAtPosition, getRowAtPosition, isCtrlCmd } from './helpers';
+import './styles.css';
 
 interface EditorProps {
   defaultValue?: string;
@@ -43,31 +44,69 @@ type ListItemAction = {
     type: 'ul' | 'ol';
   };
 };
+type BoldAction = {
+  type: 'Bold';
+  payload: HTMLTextAreaElement;
+};
+type ItalicAction = {
+  type: 'Italic';
+  payload: HTMLTextAreaElement;
+};
 
-type Action = EditorDataAction | EditorSizeAction | TabAction | ListItemAction;
+type Action =
+  | EditorDataAction
+  | EditorSizeAction
+  | TabAction
+  | ListItemAction
+  | BoldAction
+  | ItalicAction;
 
 function getEditorData(
   el: HTMLTextAreaElement,
-  insertValue?: string
+  insertStart?: string,
+  insertEnd?: string
 ): EditorData {
-  let value = el.value;
-  let start = el.selectionStart;
-  const valueUpToStart = value.substr(0, start);
+  const caretStartingPosition: number = el.selectionStart;
+  const caretEndingPosition: number = el.selectionEnd;
+  const hasSelected: boolean = caretStartingPosition !== caretEndingPosition;
+  let value: string = el.value;
+  let caretStart: number = el.selectionStart;
+  let caretEnd: number = el.selectionEnd;
+  let valueUpToStart = value.substr(0, caretStart);
 
-  if (insertValue) {
-    const valueAfter = value.substr(start, value.length);
-    start = (valueUpToStart + insertValue).length;
-    value = valueUpToStart + insertValue + valueAfter;
+  if (insertStart) {
+    const valueAfter = value.substr(caretStart, value.length);
+    caretStart = (valueUpToStart + insertStart).length;
+    caretEnd = caretEnd + insertStart.length;
+    value = valueUpToStart + insertStart + valueAfter;
     el.value = value;
-    el.setSelectionRange(start, start);
   }
 
-  const currentWord = getWordAtPosition(value, start);
+  if (insertEnd) {
+    const valueAfter = value.substr(caretEnd, value.length);
+    valueUpToStart = value.substr(0, caretEnd);
+    caretEnd = (valueUpToStart + insertEnd).length;
+    value = valueUpToStart + insertEnd + valueAfter;
+    el.value = value;
+  }
+
+  if (insertStart || insertEnd) {
+    if (hasSelected) {
+      el.setSelectionRange(
+        caretStart - (insertStart || '').length,
+        caretEnd + (insertEnd || '').length
+      );
+    } else {
+      el.setSelectionRange(caretStart, caretStart);
+    }
+  }
+
+  const currentWord = getWordAtPosition(value, caretStart);
 
   return {
     value,
     currentWord,
-    valueUpToStart
+    valueUpToStart,
   };
 }
 
@@ -77,13 +116,13 @@ function reducer(state: State, action: Action) {
       return {
         ...state,
         editor: {
-          ...getEditorData(action.payload)
-        }
+          ...getEditorData(action.payload),
+        },
       };
     case 'EditorSize':
       return {
         ...state,
-        ...action.payload
+        ...action.payload,
       };
     case 'AddTab':
       const tabValue = '  ';
@@ -91,8 +130,8 @@ function reducer(state: State, action: Action) {
       return {
         ...state,
         editor: {
-          ...getEditorData(action.payload, tabValue)
-        }
+          ...getEditorData(action.payload, tabValue),
+        },
       };
     case 'AddListItem':
       let listValue = '\n- ';
@@ -113,8 +152,22 @@ function reducer(state: State, action: Action) {
       return {
         ...state,
         editor: {
-          ...getEditorData(action.payload.el, listValue)
-        }
+          ...getEditorData(action.payload.el, listValue),
+        },
+      };
+    case 'Bold':
+      return {
+        ...state,
+        editor: {
+          ...getEditorData(action.payload, '**', '**'),
+        },
+      };
+    case 'Italic':
+      return {
+        ...state,
+        editor: {
+          ...getEditorData(action.payload, '_', '_'),
+        },
       };
     default:
       return state;
@@ -125,10 +178,10 @@ const initialState: State = {
   editor: {
     currentWord: '',
     value: '',
-    valueUpToStart: ''
+    valueUpToStart: '',
   },
   width: 0,
-  height: 0
+  height: 0,
 };
 
 export interface EditorContextValues {
@@ -141,53 +194,20 @@ export const EditorContet = React.createContext<
   EditorContextValues | undefined
 >(undefined);
 
-function getWordAtPosition(value: string, position: number): string {
-  let letterIndex = 0;
-  const words = value.replace(/\n/g, ' ').split(' ');
-
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i];
-    letterIndex += word.length;
-    if (letterIndex >= position) {
-      return word.replace(/\r?\n|\r/g, '').trim();
-    }
-
-    letterIndex += 1;
-  }
-
-  return '';
-}
-
-function getRowAtPosition(value: string, position: number): string {
-  let letterIndex = 0;
-  const rows = value.split(/\n/g);
-
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    letterIndex += row.length;
-    if (letterIndex >= position) {
-      return row;
-    }
-    letterIndex += 1;
-  }
-
-  return '';
-}
-
 export const Editor: React.FC<EditorProps> = ({
   defaultValue,
   onChange,
   onSubmit,
   onBlur,
   onCancel,
-  children
+  children,
 }) => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const editorRef = React.useRef<HTMLTextAreaElement | null>(null);
   const [state, dispatch] = React.useReducer(reducer, initialState, initial => {
     return {
       ...initial,
-      value: defaultValue || ''
+      value: defaultValue || '',
     };
   });
   const { width, height } = useMeasure(editorRef);
@@ -207,11 +227,9 @@ export const Editor: React.FC<EditorProps> = ({
 
     if (editor) {
       const handleKeyEvent = (event: KeyboardEvent) => {
-        if (
-          event.key === 'Enter' &&
-          (event.metaKey || event.ctrlKey) &&
-          onSubmit
-        ) {
+        const CtrlCmd: boolean = isCtrlCmd(event);
+
+        if (CtrlCmd && event.key === 'Enter' && onSubmit) {
           onSubmit();
         }
         if (event.key === 'Escape' && onCancel) {
@@ -228,8 +246,8 @@ export const Editor: React.FC<EditorProps> = ({
               type: 'AddListItem',
               payload: {
                 el: editor,
-                type: isUL ? 'ul' : 'ol'
-              }
+                type: isUL ? 'ul' : 'ol',
+              },
             });
             event.preventDefault();
           }
@@ -238,6 +256,12 @@ export const Editor: React.FC<EditorProps> = ({
           event.preventDefault();
 
           dispatch({ type: 'AddTab', payload: editor });
+        }
+        if (CtrlCmd && event.key === 'b') {
+          dispatch({ type: 'Bold', payload: editor });
+        }
+        if (CtrlCmd && event.key === 'i') {
+          dispatch({ type: 'Italic', payload: editor });
         }
       };
 
@@ -267,7 +291,7 @@ export const Editor: React.FC<EditorProps> = ({
 
     dispatch({
       type: 'EditorData',
-      payload: node
+      payload: node,
     });
 
     if (onChange) {

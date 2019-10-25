@@ -1,32 +1,34 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Editor, Mention } from '../.';
+import { Editor, Mention } from '../src';
 
 const App = () => {
-  const [users, setUsers] = React.useState(['quentin', 'rodrigo', 'bernie']);
-
-  const handleSearchUsers = React.useCallback((value: string) => {
-    function fakeSearch() {
-      setTimeout(() => {
-        setUsers(['quentin', 'rodrigo', 'bernie', 'arnold', 'aretha']);
-      }, 500);
-    }
-
-    if (value.includes('ar')) {
-      fakeSearch();
-    }
-  }, []);
+  const [users, setUsers] = React.useState([
+    { value: 'terminator', label: 'Arnold Schwarzenegger' },
+    { value: 'markymark', label: 'Mark wahlberg' },
+    { value: 'aretha', label: 'Aretha Franklin' },
+  ]);
+  const [labels, setLabels] = React.useState([
+    { value: 1, label: 'One' },
+    { value: 2, label: 'Two' },
+    { value: 3, label: 'Three' },
+  ]);
 
   return (
-    <div>
-      <Editor>
-        <Mention prefix="@" data={users} onSearch={handleSearchUsers} />
-        <Mention
-          prefix="#"
-          data={['label-1', 'label-2', 'label-3', 'label-4', 'label-5']}
-        />
-      </Editor>
+    <div className="container">
+      <div className="header">
+        <h1>React Marky Markdown</h1>
+        <p>
+          Currently has <b>#</b> and <b>@</b> implemented
+        </p>
+      </div>
+      <div className="editor-container">
+        <Editor>
+          <Mention prefix="@" data={users} />
+          <Mention prefix="#" data={labels} />
+        </Editor>
+      </div>
     </div>
   );
 };

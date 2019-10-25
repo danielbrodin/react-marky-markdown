@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useEditor } from './hooks/useEditor';
 
 interface MentionData {
@@ -15,7 +15,7 @@ interface MarkdownMentionProps {
 export const Mention: React.FC<MarkdownMentionProps> = ({
   prefix,
   data,
-  onSearch
+  onSearch,
 }) => {
   const { state, dispatch, editorRef } = useEditor();
   const { currentWord, valueUpToStart, value } = state.editor;
@@ -84,7 +84,7 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
 
           dispatch({
             type: 'EditorData',
-            payload: node
+            payload: node,
           });
           setSelectedIndex(0);
         }
@@ -116,7 +116,7 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
     filtered,
     selectedIndex,
     dispatch,
-    editorRef
+    editorRef,
   ]);
 
   if (!show) {
@@ -128,13 +128,13 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
       className="rmm-list"
       style={{ transform: `translate(${x}px, ${y}px)` }}
     >
-      {filtered.map((value, index) => (
+      {filtered.map((item, index) => (
         <div
-          key={value.value}
+          key={item.value}
           className={`rmm-list-item ${index === selectedIndex &&
             'rmm-list-item-selected'}`}
         >
-          {value.label}
+          <b>{item.value}</b> {item.label}
         </div>
       ))}
     </div>
