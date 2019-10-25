@@ -25,3 +25,23 @@ const App = () => {
   );
 };
 ```
+
+## Props
+
+```ts
+// Editor
+{
+  defaultValue?: string;
+  onChange?(value: string): void;
+  onSubmit?(): void;
+  onBlur?(): void;
+  onCancel?(): void;
+}
+
+// Mention
+{
+  prefix: string;
+  data: MentionData[]; // { value: string | number; label: string; }
+  onSearch?(value: string): void;
+}
+```
