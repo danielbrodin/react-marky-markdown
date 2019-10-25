@@ -46,11 +46,11 @@ type ListItemAction = {
   };
 };
 type BoldAction = {
-  type: 'Bold';
+  type: 'ToggleBold';
   payload: HTMLTextAreaElement;
 };
 type ItalicAction = {
-  type: 'Italic';
+  type: 'ToggleItalic';
   payload: HTMLTextAreaElement;
 };
 
@@ -61,6 +61,54 @@ type Action =
   | ListItemAction
   | BoldAction
   | ItalicAction;
+
+function toggleWordWrap(el: HTMLTextAreaElement, value: string): EditorData {
+  const caretStartingPosition: number = el.selectionStart;
+  const caretEndingPosition: number = el.selectionEnd;
+  const hasSelection: boolean = caretStartingPosition !== caretEndingPosition;
+  let [word, startPosition, endPosition] = [
+    '',
+    caretStartingPosition,
+    caretEndingPosition,
+  ];
+
+  if (hasSelection) {
+    word = el.value.substr(caretStartingPosition, caretEndingPosition);
+  } else {
+    [word, startPosition, endPosition] = getWordAtPosition(
+      el.value,
+      caretStartingPosition
+    );
+  }
+
+  const firstChars = word.substr(0, value.length);
+  const lastChars = word.substr(-value.length);
+  const beforeWord = el.value.substr(0, startPosition);
+  const afterWord = el.value.substr(endPosition, el.value.length);
+
+  if (firstChars !== value || lastChars !== value) {
+    el.value = `${beforeWord}${value}${word}${value}${afterWord}`;
+
+    el.setSelectionRange(
+      caretStartingPosition + value.length,
+      caretEndingPosition + value.length
+    );
+    return getEditorData(el);
+  } else {
+    const updatedWord = word.substr(
+      value.length,
+      word.length - value.length * 2
+    );
+    el.value = `${beforeWord}${updatedWord}${afterWord}`;
+    el.setSelectionRange(
+      caretStartingPosition - value.length,
+      caretEndingPosition - value.length
+    );
+    return getEditorData(el);
+  }
+
+  return getEditorData(el);
+}
 
 function getEditorData(
   el: HTMLTextAreaElement,
@@ -102,7 +150,7 @@ function getEditorData(
     }
   }
 
-  const currentWord = getWordAtPosition(value, caretStart);
+  const [currentWord] = getWordAtPosition(value, caretStart);
 
   return {
     value,
@@ -156,18 +204,18 @@ function reducer(state: State, action: Action) {
           ...getEditorData(action.payload.el, listValue),
         },
       };
-    case 'Bold':
+    case 'ToggleBold':
       return {
         ...state,
         editor: {
-          ...getEditorData(action.payload, '**', '**'),
+          ...toggleWordWrap(action.payload, '**'),
         },
       };
-    case 'Italic':
+    case 'ToggleItalic':
       return {
         ...state,
         editor: {
-          ...getEditorData(action.payload, '_', '_'),
+          ...toggleWordWrap(action.payload, '_'),
         },
       };
     default:
@@ -263,10 +311,10 @@ export const Editor: React.FC<EditorProps> = ({
           dispatch({ type: 'AddTab', payload: editor });
         }
         if (CtrlCmd && event.key === 'b') {
-          dispatch({ type: 'Bold', payload: editor });
+          dispatch({ type: 'ToggleBold', payload: editor });
         }
         if (CtrlCmd && event.key === 'i') {
-          dispatch({ type: 'Italic', payload: editor });
+          dispatch({ type: 'ToggleItalic', payload: editor });
         }
       };
 

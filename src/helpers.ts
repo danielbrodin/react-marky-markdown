@@ -1,18 +1,28 @@
-export function getWordAtPosition(value: string, position: number): string {
+type StartPosition = number;
+type EndPosition = number;
+export function getWordAtPosition(
+  value: string,
+  position: number
+): [string, StartPosition, EndPosition] {
   let letterIndex = 0;
   const words = value.replace(/\n/g, ' ').split(' ');
 
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
+    const startIndex = letterIndex;
     letterIndex += word.length;
     if (letterIndex >= position) {
-      return word.replace(/\r?\n|\r/g, '').trim();
+      return [
+        word.replace(/\r?\n|\r/g, '').trim(),
+        startIndex,
+        startIndex + word.length,
+      ];
     }
 
     letterIndex += 1;
   }
 
-  return '';
+  return ['', 0, 0];
 }
 
 export function getRowAtPosition(value: string, position: number): string {
