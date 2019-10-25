@@ -1,9 +1,9 @@
-.kaktus-container {
+.rmm-container {
   position: relative;
   background: #fff;
   border-radius: 4px;
 }
-.kaktus-editor {
+.rmm-editor {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -15,16 +15,16 @@
   padding: 8px;
 }
 
-.kaktus-list {
+.rmm-list {
   position: absolute;
   background: #ccc;
   top: 0;
   left: 0;
 }
-.kaktus-list-item {
+.rmm-list-item {
   padding: 4px 12px;
   word-wrap: no-wrap;
 }
-.kaktus-list-item-selected {
+.rmm-list-item-selected {
   background: green;
 }

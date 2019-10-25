@@ -277,10 +277,10 @@ export const Editor: React.FC<EditorProps> = ({
 
   return (
     <EditorContet.Provider value={{ state, dispatch, editorRef }}>
-      <div ref={containerRef} className="kaktus-container">
+      <div ref={containerRef} className="rmm-container">
         <TextareaAutosize
           ref={editorRef}
-          className="kaktus-editor"
+          className="rmm-editor"
           wrap="hard"
           onChange={handleChange}
           value={state.editor.value}

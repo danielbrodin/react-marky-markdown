@@ -43,7 +43,7 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
       const div = document.createElement('div');
       const indicatorData = valueUpToStart.split(/\n\r?/g);
       const span = document.createElement('span');
-      div.classList.add('kaktus-editor');
+      div.classList.add('rmm-editor');
       div.style.cssText = `max-width: ${width}px; position: absolute; opacity: 0; color: transparent; pointer-events: none; white-space: pre-wrap;`;
       span.innerHTML = '&nbsp;';
       span.style.position = 'absolute';
@@ -125,14 +125,14 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
 
   return (
     <div
-      className="kaktus-list"
+      className="rmm-list"
       style={{ transform: `translate(${x}px, ${y}px)` }}
     >
       {filtered.map((value, index) => (
         <div
           key={value.value}
-          className={`kaktus-list-item ${index === selectedIndex &&
-            'kaktus-list-item-selected'}`}
+          className={`rmm-list-item ${index === selectedIndex &&
+            'rmm-list-item-selected'}`}
         >
           {value.label}
         </div>
