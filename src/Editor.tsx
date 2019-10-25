@@ -3,7 +3,6 @@ import TextareaAutosize from 'react-autosize-textarea';
 import { useMeasure } from './hooks/useMeasure';
 import { useOnClickOutside } from './hooks/useOnClickOutside';
 import { getWordAtPosition, getRowAtPosition, isCtrlCmd } from './helpers';
-import './styles.css';
 
 interface EditorProps {
   defaultValue?: string;
