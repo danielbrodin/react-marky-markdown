@@ -42,6 +42,9 @@
       "release": true
     }
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
