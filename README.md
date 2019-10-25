@@ -1,4 +1,5 @@
 # React Marky Markdown
+[![npm version](https://badge.fury.io/js/react-marky-markdown.svg)](https://badge.fury.io/js/react-marky-markdown)
 
 A clean markdown editor for react.
 
@@ -10,6 +11,8 @@ Currently in beta. Like this readme :)
 
 ```js
 import { Editor, Mention } from 'react-marky-markdown';
+// Includes necessary styling
+import 'react-marky-markdown/dist/styles.css';
 
 const App = () => {
   return (

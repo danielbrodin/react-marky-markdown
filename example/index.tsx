@@ -3,6 +3,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Editor, Mention } from '../src';
 
+const defaultValue =
+  '**React Marky Markdown**\n\nCurrently has # and @ implemented';
+
 const App = () => {
   const [users, setUsers] = React.useState([
     { value: 'terminator', label: 'Arnold Schwarzenegger' },
@@ -14,6 +17,15 @@ const App = () => {
     { value: 2, label: 'Two' },
     { value: 3, label: 'Three' },
   ]);
+  const [value, setValue] = React.useState(defaultValue);
+
+  const handleChange = (value: string) => {
+    setValue(value);
+  };
+
+  const handleSubmit = () => {
+    console.log('Submit', value);
+  };
 
   return (
     <div className="container">
@@ -24,7 +36,13 @@ const App = () => {
         </p>
       </div>
       <div className="editor-container">
-        <Editor>
+        <Editor
+          autoFocus
+          defaultValue={defaultValue}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+          onBlur={handleSubmit}
+        >
           <Mention prefix="@" data={users} />
           <Mention prefix="#" data={labels} />
         </Editor>

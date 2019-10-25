@@ -4,7 +4,9 @@ import { useMeasure } from './hooks/useMeasure';
 import { useOnClickOutside } from './hooks/useOnClickOutside';
 import { getWordAtPosition, getRowAtPosition, isCtrlCmd } from './helpers';
 
-interface EditorProps {
+type TextAreaProps = Omit<React.HTMLProps<HTMLTextAreaElement>, 'onChange'>;
+
+interface EditorProps extends TextAreaProps {
   defaultValue?: string;
   onChange?(value: string): void;
   onSubmit?(): void;
@@ -200,13 +202,17 @@ export const Editor: React.FC<EditorProps> = ({
   onBlur,
   onCancel,
   children,
+  ...rest
 }) => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const editorRef = React.useRef<HTMLTextAreaElement | null>(null);
   const [state, dispatch] = React.useReducer(reducer, initialState, initial => {
     return {
       ...initial,
-      value: defaultValue || '',
+      editor: {
+        ...initial.editor,
+        value: defaultValue || '',
+      },
     };
   });
   const { width, height } = useMeasure(editorRef);
@@ -264,18 +270,10 @@ export const Editor: React.FC<EditorProps> = ({
         }
       };
 
-      const handleBlur = () => {
-        if (onBlur) {
-          onBlur();
-        }
-      };
-
       editor.addEventListener('keydown', handleKeyEvent, false);
-      editor.addEventListener('blur', handleBlur, false);
 
       return () => {
         editor.removeEventListener('keydown', handleKeyEvent, false);
-        editor.removeEventListener('blur', handleBlur, false);
       };
     }
   }, [onSubmit, onCancel, onBlur]);
@@ -302,6 +300,7 @@ export const Editor: React.FC<EditorProps> = ({
     <EditorContet.Provider value={{ state, dispatch, editorRef }}>
       <div ref={containerRef} className="rmm-container">
         <TextareaAutosize
+          {...rest}
           ref={editorRef}
           className="rmm-editor"
           wrap="hard"
