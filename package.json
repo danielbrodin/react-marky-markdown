@@ -9,6 +9,16 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "markdown",
+    "mention",
+    "editor"
+  ],
+  "homepage": "https://github.com/danielbrodin/react-marky-markdown",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielbrodin/react-marky-markdown.git"
+  },
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
