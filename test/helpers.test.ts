@@ -9,6 +9,20 @@ describe('getWordAtPosition', () => {
     expect(start).toBe(words[0].length + 1);
     expect(end).toBe(words[0].length + 1 + words[1].length);
   });
+
+  it('Returns the correct word from selection', () => {
+    const words = ['lorem', 'ipsum', 'dolor'];
+    const startPosition = words[0].length + 1;
+    const endPosition = words[0].length + 1 + words[1].length;
+    const [word, start, end] = getWordAtPosition(
+      words.join(' '),
+      startPosition,
+      endPosition
+    );
+    expect(word).toBe('ipsum');
+    expect(start).toBe(startPosition);
+    expect(end).toBe(endPosition);
+  });
 });
 
 describe('getRowAtPosition', () => {

@@ -69,20 +69,11 @@ export function toggleWordWrap(
   const caretStartingPosition: number = el.selectionStart;
   const caretEndingPosition: number = el.selectionEnd;
   const hasSelection: boolean = caretStartingPosition !== caretEndingPosition;
-  let [word, startPosition, endPosition] = [
-    '',
+  const [word, startPosition, endPosition] = getWordAtPosition(
+    el.value,
     caretStartingPosition,
-    caretEndingPosition,
-  ];
-
-  if (hasSelection) {
-    word = el.value.substr(caretStartingPosition, caretEndingPosition);
-  } else {
-    [word, startPosition, endPosition] = getWordAtPosition(
-      el.value,
-      caretStartingPosition
-    );
-  }
+    caretEndingPosition
+  );
 
   const firstChars = word.substr(0, value.length);
   const lastChars = word.substr(-value.length);
@@ -111,14 +102,20 @@ export function toggleWordWrap(
       word.length - value.length * 2
     );
     el.value = `${beforeWord}${updatedWord}${afterWord}`;
-    el.setSelectionRange(
-      caretStartingPosition - value.length,
-      caretEndingPosition - value.length
-    );
+    if (hasSelection) {
+      el.setSelectionRange(
+        caretStartingPosition,
+        caretEndingPosition - value.length * 2
+      );
+    } else {
+      el.setSelectionRange(
+        caretStartingPosition - value.length,
+        caretEndingPosition - value.length
+      );
+    }
+
     return getEditorData(el);
   }
-
-  return getEditorData(el);
 }
 
 function getEditorData(
