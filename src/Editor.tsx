@@ -62,7 +62,10 @@ type Action =
   | BoldAction
   | ItalicAction;
 
-function toggleWordWrap(el: HTMLTextAreaElement, value: string): EditorData {
+export function toggleWordWrap(
+  el: HTMLTextAreaElement,
+  value: string
+): EditorData {
   const caretStartingPosition: number = el.selectionStart;
   const caretEndingPosition: number = el.selectionEnd;
   const hasSelection: boolean = caretStartingPosition !== caretEndingPosition;
@@ -89,10 +92,18 @@ function toggleWordWrap(el: HTMLTextAreaElement, value: string): EditorData {
   if (firstChars !== value || lastChars !== value) {
     el.value = `${beforeWord}${value}${word}${value}${afterWord}`;
 
-    el.setSelectionRange(
-      caretStartingPosition + value.length,
-      caretEndingPosition + value.length
-    );
+    if (hasSelection) {
+      el.setSelectionRange(
+        caretStartingPosition,
+        caretEndingPosition + value.length * 2
+      );
+    } else {
+      el.setSelectionRange(
+        caretStartingPosition + value.length,
+        caretEndingPosition + value.length
+      );
+    }
+
     return getEditorData(el);
   } else {
     const updatedWord = word.substr(
@@ -346,9 +357,10 @@ export const Editor: React.FC<EditorProps> = ({
 
   return (
     <EditorContet.Provider value={{ state, dispatch, editorRef }}>
-      <div ref={containerRef} className="rmm-container">
+      <div data-testid="container" ref={containerRef} className="rmm-container">
         <TextareaAutosize
           {...rest}
+          data-testid="textarea"
           ref={editorRef}
           className="rmm-editor"
           wrap="hard"
