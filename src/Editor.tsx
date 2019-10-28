@@ -9,7 +9,7 @@ import {
   toggleWordWrap,
 } from './helpers';
 
-type TextAreaProps = Omit<React.HTMLProps<HTMLTextAreaElement>, 'onChange'>;
+type TextAreaProps = Omit<TextareaAutosize.Props, 'onChange'>;
 
 interface EditorProps extends TextAreaProps {
   defaultValue?: string;

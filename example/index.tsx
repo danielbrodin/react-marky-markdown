@@ -38,6 +38,7 @@ const App = () => {
       <div className="editor-container">
         <Editor
           autoFocus
+          maxRows={5}
           defaultValue={defaultValue}
           onChange={handleChange}
           onSubmit={handleSubmit}

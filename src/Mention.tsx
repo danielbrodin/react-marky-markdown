@@ -44,7 +44,7 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
       const indicatorData = valueUpToStart.split(/\n\r?/g);
       const span = document.createElement('span');
       div.classList.add('rmm-editor');
-      div.style.cssText = `max-width: ${width}px; position: absolute; opacity: 0; color: transparent; pointer-events: none; white-space: pre-wrap;`;
+      div.style.cssText = `max-width: ${width}px; position: absolute; top: 0; left: -9999px; opacity: 0; color: transparent; pointer-events: none; white-space: pre-wrap;`;
       span.innerHTML = '&nbsp;';
       span.style.position = 'absolute';
       div.innerHTML = indicatorData.join('<br />');
@@ -119,14 +119,16 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
     editorRef,
   ]);
 
-  if (!show) {
+  if (!show || !editorRef.current) {
     return null;
   }
-
+  console.log({ x, y, scrollTop: editorRef.current.scrollTop });
   return (
     <div
       className="rmm-list"
-      style={{ transform: `translate(${x}px, ${y}px)` }}
+      style={{
+        transform: `translate(${x}px, ${y - editorRef.current.scrollTop}px)`,
+      }}
     >
       {filtered.map((item, index) => (
         <div

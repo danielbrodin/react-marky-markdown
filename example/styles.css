@@ -20,3 +20,8 @@ html, body {
 .editor-container {
   width: 400px;
 }
+
+.rmm-editor {
+  padding: 8px;
+  font-size: 14px;
+}
