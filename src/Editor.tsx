@@ -2,7 +2,12 @@ import * as React from 'react';
 import TextareaAutosize from 'react-autosize-textarea';
 import { useMeasure } from './hooks/useMeasure';
 import { useOnClickOutside } from './hooks/useOnClickOutside';
-import { getWordAtPosition, getRowAtPosition, isCtrlCmd } from './helpers';
+import {
+  getWordAtPosition,
+  getRowAtPosition,
+  isCtrlCmd,
+  toggleWordWrap,
+} from './helpers';
 
 type TextAreaProps = Omit<React.HTMLProps<HTMLTextAreaElement>, 'onChange'>;
 
@@ -61,62 +66,6 @@ type Action =
   | ListItemAction
   | BoldAction
   | ItalicAction;
-
-export function toggleWordWrap(
-  el: HTMLTextAreaElement,
-  value: string
-): EditorData {
-  const caretStartingPosition: number = el.selectionStart;
-  const caretEndingPosition: number = el.selectionEnd;
-  const hasSelection: boolean = caretStartingPosition !== caretEndingPosition;
-  const [word, startPosition, endPosition] = getWordAtPosition(
-    el.value,
-    caretStartingPosition,
-    caretEndingPosition
-  );
-
-  const firstChars = word.substr(0, value.length);
-  const lastChars = word.substr(-value.length);
-  const beforeWord = el.value.substr(0, startPosition);
-  const afterWord = el.value.substr(endPosition, el.value.length);
-
-  if (firstChars !== value || lastChars !== value) {
-    el.value = `${beforeWord}${value}${word}${value}${afterWord}`;
-
-    if (hasSelection) {
-      el.setSelectionRange(
-        caretStartingPosition,
-        caretEndingPosition + value.length * 2
-      );
-    } else {
-      el.setSelectionRange(
-        caretStartingPosition + value.length,
-        caretEndingPosition + value.length
-      );
-    }
-
-    return getEditorData(el);
-  } else {
-    const updatedWord = word.substr(
-      value.length,
-      word.length - value.length * 2
-    );
-    el.value = `${beforeWord}${updatedWord}${afterWord}`;
-    if (hasSelection) {
-      el.setSelectionRange(
-        caretStartingPosition,
-        caretEndingPosition - value.length * 2
-      );
-    } else {
-      el.setSelectionRange(
-        caretStartingPosition - value.length,
-        caretEndingPosition - value.length
-      );
-    }
-
-    return getEditorData(el);
-  }
-}
 
 function getEditorData(
   el: HTMLTextAreaElement,
@@ -216,14 +165,14 @@ function reducer(state: State, action: Action) {
       return {
         ...state,
         editor: {
-          ...toggleWordWrap(action.payload, '**'),
+          ...getEditorData(toggleWordWrap(action.payload, '**')),
         },
       };
     case 'ToggleItalic':
       return {
         ...state,
         editor: {
-          ...toggleWordWrap(action.payload, '_'),
+          ...getEditorData(toggleWordWrap(action.payload, '_')),
         },
       };
     default:

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { Editor } from '../src';
-import { toggleWordWrap } from '../src';
+import { toggleWordWrap } from '../src/helpers';
 
 describe('toggleWordWrap', () => {
   it('Wraps the word with no selection', async () => {

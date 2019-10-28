@@ -1,7 +1,7 @@
 import { getWordAtPosition, getRowAtPosition } from '../src/helpers';
 
 describe('getWordAtPosition', () => {
-  it('Returns the correct word att said position', () => {
+  it('Returns the correct word at said position', () => {
     const words = ['lorem', 'ipsum', 'dolor'];
     const position = Math.round(words[0].length + words[1].length / 2);
     const [word, start, end] = getWordAtPosition(words.join(' '), position);
