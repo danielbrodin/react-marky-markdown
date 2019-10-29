@@ -13,6 +13,8 @@ type TextAreaProps = Omit<TextareaAutosize.Props, 'onChange'>;
 
 interface EditorProps extends TextAreaProps {
   defaultValue?: string;
+  disableFormatting?: boolean;
+  singleLine?: boolean;
   onChange?(value: string): void;
   onSubmit?(): void;
   onBlur?(): void;
@@ -206,6 +208,8 @@ export const Editor: React.FC<EditorProps> = ({
   onSubmit,
   onBlur,
   onCancel,
+  disableFormatting,
+  singleLine,
   children,
   ...rest
 }) => {
@@ -246,32 +250,39 @@ export const Editor: React.FC<EditorProps> = ({
           onCancel();
         }
         if (event.key === 'Enter') {
-          const row = getRowAtPosition(editor.value, editor.selectionStart);
-          const rowStartingChar = row.substr(0, 2);
-          const olRegex = new RegExp(/^[0-9]. /);
-          const isUL = rowStartingChar === '- ';
-          const isOL = olRegex.test(row);
-          if (isUL || isOL) {
-            dispatch({
-              type: 'AddListItem',
-              payload: {
-                el: editor,
-                type: isUL ? 'ul' : 'ol',
-              },
-            });
+          if (!disableFormatting) {
+            const row = getRowAtPosition(editor.value, editor.selectionStart);
+            const rowStartingChar = row.substr(0, 2);
+            const olRegex = new RegExp(/^[0-9]. /);
+            const isUL = rowStartingChar === '- ';
+            const isOL = olRegex.test(row);
+            if (isUL || isOL) {
+              dispatch({
+                type: 'AddListItem',
+                payload: {
+                  el: editor,
+                  type: isUL ? 'ul' : 'ol',
+                },
+              });
+              event.preventDefault();
+            }
+          }
+          if (singleLine) {
             event.preventDefault();
           }
         }
-        if (event.key === 'Tab') {
-          event.preventDefault();
+        if (!disableFormatting) {
+          if (event.key === 'Tab') {
+            event.preventDefault();
 
-          dispatch({ type: 'AddTab', payload: editor });
-        }
-        if (CtrlCmd && event.key === 'b') {
-          dispatch({ type: 'ToggleBold', payload: editor });
-        }
-        if (CtrlCmd && event.key === 'i') {
-          dispatch({ type: 'ToggleItalic', payload: editor });
+            dispatch({ type: 'AddTab', payload: editor });
+          }
+          if (CtrlCmd && event.key === 'b') {
+            dispatch({ type: 'ToggleBold', payload: editor });
+          }
+          if (CtrlCmd && event.key === 'i') {
+            dispatch({ type: 'ToggleItalic', payload: editor });
+          }
         }
       };
 
@@ -284,22 +295,17 @@ export const Editor: React.FC<EditorProps> = ({
   }, [onSubmit, onCancel, onBlur]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const updatedValue = event.target.value;
-    const node = editorRef.current;
-
-    if (!node) {
-      return;
-    }
-
     dispatch({
       type: 'EditorData',
-      payload: node,
+      payload: event.target,
     });
-
-    if (onChange) {
-      onChange(updatedValue);
-    }
   };
+
+  React.useEffect(() => {
+    if (onChange) {
+      onChange(state.editor.value);
+    }
+  }, [state.editor.value]);
 
   return (
     <EditorContet.Provider value={{ state, dispatch, editorRef }}>

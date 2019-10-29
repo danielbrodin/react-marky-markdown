@@ -35,6 +35,8 @@ const App = () => {
 // Editor
 {
   defaultValue?: string;
+  singleLine?: boolean;
+  disableFormatting?: boolean;
   onChange?(value: string): void;
   onSubmit?(): void;
   onBlur?(): void;
@@ -44,7 +46,7 @@ const App = () => {
 // Mention
 {
   prefix: string;
-  data: MentionData[]; // { value: string | number; label: string; }
+  data: Item[]; // { value: string | number; label: string; }
   onSearch?(value: string): void;
 }
 ```

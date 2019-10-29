@@ -19,6 +19,7 @@ html, body {
 }
 .editor-container {
   width: 400px;
+  margin-bottom: 40px;
 }
 
 .rmm-editor {

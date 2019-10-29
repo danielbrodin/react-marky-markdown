@@ -26,7 +26,9 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
   const withoutPrefix = currentWord.replace(prefix, '');
 
   const filtered = data.filter(item =>
-    `${item.value}${item.label}`.includes(withoutPrefix)
+    `${item.value}${item.label}`
+      .toLowerCase()
+      .includes(withoutPrefix.toLowerCase())
   );
 
   React.useEffect(() => {
@@ -56,6 +58,27 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
     }
   }, [show, width, editorRef, valueUpToStart]);
 
+  const insertValue = React.useCallback(
+    (node: HTMLTextAreaElement, selectedValue: MentionData) => {
+      const valueUpToValue =
+        value.slice(0, node.selectionStart - currentWord.length) +
+        `${prefix}${selectedValue.value} `;
+      const updatedValue =
+        valueUpToValue + value.slice(node.selectionStart, value.length);
+      const start: number = valueUpToValue.length;
+      const end: number = valueUpToValue.length;
+      node.value = updatedValue;
+      node.setSelectionRange(start, end);
+
+      dispatch({
+        type: 'EditorData',
+        payload: node,
+      });
+      setSelectedIndex(0);
+    },
+    [currentWord]
+  );
+
   // @ts-ignore noImplicitReturns
   React.useEffect(() => {
     const editor = editorRef.current;
@@ -70,23 +93,9 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
             return;
           }
           const node = event.target as HTMLTextAreaElement;
-          const valueUpToValue =
-            value.slice(0, node.selectionStart - currentWord.length) +
-            `${prefix}${selectedValue.value} `;
-          const updatedValue =
-            valueUpToValue + value.slice(node.selectionStart, value.length);
-          const start: number = valueUpToValue.length;
-          const end: number = valueUpToValue.length;
-          node.value = updatedValue;
-          node.setSelectionRange(start, end);
+          insertValue(node, selectedValue);
           event.stopPropagation();
           event.preventDefault();
-
-          dispatch({
-            type: 'EditorData',
-            payload: node,
-          });
-          setSelectedIndex(0);
         }
         if (event.key === 'ArrowUp') {
           setSelectedIndex(current =>
@@ -122,7 +131,14 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
   if (!show || !editorRef.current) {
     return null;
   }
-  console.log({ x, y, scrollTop: editorRef.current.scrollTop });
+
+  const handleItemClick = (data: MentionData) => () => {
+    if (editorRef.current) {
+      insertValue(editorRef.current, data);
+      editorRef.current.focus();
+    }
+  };
+
   return (
     <div
       className="rmm-list"
@@ -133,8 +149,11 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
       {filtered.map((item, index) => (
         <div
           key={item.value}
+          role="button"
           className={`rmm-list-item ${index === selectedIndex &&
             'rmm-list-item-selected'}`}
+          onMouseOver={() => setSelectedIndex(index)}
+          onClick={handleItemClick(item)}
         >
           <b>{item.value}</b> {item.label}
         </div>

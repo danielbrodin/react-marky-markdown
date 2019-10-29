@@ -18,9 +18,16 @@ const App = () => {
     { value: 3, label: 'Three' },
   ]);
   const [value, setValue] = React.useState(defaultValue);
+  const [singleValue, setSingleValue] = React.useState(
+    'Single line without formatting'
+  );
 
   const handleChange = (value: string) => {
     setValue(value);
+  };
+
+  const handleSingleLineChange = (value: string) => {
+    setSingleValue(value);
   };
 
   const handleSubmit = () => {
@@ -41,6 +48,20 @@ const App = () => {
           maxRows={5}
           defaultValue={defaultValue}
           onChange={handleChange}
+          onSubmit={handleSubmit}
+          onBlur={handleSubmit}
+        >
+          <Mention prefix="@" data={users} />
+          <Mention prefix="#" data={labels} />
+        </Editor>
+      </div>
+      <div className="editor-container">
+        <Editor
+          disableFormatting
+          singleLine
+          maxRows={5}
+          defaultValue={singleValue}
+          onChange={handleSingleLineChange}
           onSubmit={handleSubmit}
           onBlur={handleSubmit}
         >
