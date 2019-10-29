@@ -76,7 +76,7 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
       });
       setSelectedIndex(0);
     },
-    [currentWord]
+    [currentWord.length, dispatch, prefix, value]
   );
 
   // @ts-ignore noImplicitReturns
@@ -126,6 +126,7 @@ export const Mention: React.FC<MarkdownMentionProps> = ({
     selectedIndex,
     dispatch,
     editorRef,
+    insertValue,
   ]);
 
   if (!show || !editorRef.current) {

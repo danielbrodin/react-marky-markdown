@@ -292,7 +292,7 @@ export const Editor: React.FC<EditorProps> = ({
         editor.removeEventListener('keydown', handleKeyEvent, false);
       };
     }
-  }, [onSubmit, onCancel, onBlur]);
+  }, [onSubmit, onCancel, onBlur, disableFormatting, singleLine]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch({
@@ -305,7 +305,7 @@ export const Editor: React.FC<EditorProps> = ({
     if (onChange) {
       onChange(state.editor.value);
     }
-  }, [state.editor.value]);
+  }, [onChange, state.editor.value]);
 
   return (
     <EditorContet.Provider value={{ state, dispatch, editorRef }}>
