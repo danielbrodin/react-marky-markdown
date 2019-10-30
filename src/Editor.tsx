@@ -211,6 +211,7 @@ export const Editor: React.FC<EditorProps> = ({
   disableFormatting,
   singleLine,
   children,
+  className,
   ...rest
 }) => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -314,7 +315,7 @@ export const Editor: React.FC<EditorProps> = ({
           {...rest}
           data-testid="textarea"
           ref={editorRef}
-          className="rmm-editor"
+          className={`rmm-editor ${className}`}
           wrap="hard"
           onChange={handleChange}
           value={state.editor.value}
