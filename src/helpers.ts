@@ -31,20 +31,29 @@ export function getWordAtPosition(
   return ['', 0, 0];
 }
 
-export function getRowAtPosition(value: string, position: number): string {
+export function getRows(
+  value: string,
+  position: number
+): { rows: string[]; currentIndex: number } {
   let letterIndex = 0;
   const rows = value.split(/\n/g);
+  let currentIndex = 0;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     letterIndex += row.length;
     if (letterIndex >= position) {
-      return row;
+      currentIndex = i;
     }
     letterIndex += 1;
   }
 
-  return '';
+  return { rows, currentIndex };
+}
+
+export function getRowAtPosition(value: string, position: number): string {
+  const { rows, currentIndex } = getRows(value, position);
+  return rows[currentIndex];
 }
 
 export function isCtrlCmd(event: KeyboardEvent): boolean {
