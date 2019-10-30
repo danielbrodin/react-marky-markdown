@@ -60,6 +60,13 @@ type ItalicAction = {
   type: 'ToggleItalic';
   payload: HTMLTextAreaElement;
 };
+type EncloseAction = {
+  type: 'Enclose';
+  payload: {
+    el: HTMLTextAreaElement;
+    type: '[' | '(' | '{';
+  };
+};
 
 type Action =
   | EditorDataAction
@@ -67,7 +74,8 @@ type Action =
   | TabAction
   | ListItemAction
   | BoldAction
-  | ItalicAction;
+  | ItalicAction
+  | EncloseAction;
 
 function getEditorData(
   el: HTMLTextAreaElement,
@@ -177,6 +185,40 @@ function reducer(state: State, action: Action) {
           ...getEditorData(toggleWordWrap(action.payload, '_')),
         },
       };
+    case 'Enclose':
+      const [currentWord, , currentWordEnd] = getWordAtPosition(
+        action.payload.el.value,
+        action.payload.el.selectionStart,
+        action.payload.el.selectionEnd
+      );
+      const startChar = action.payload.type;
+      const endChar = startChar === '[' ? ']' : startChar === '(' ? ')' : '}';
+
+      if (
+        action.payload.el.selectionStart !== action.payload.el.selectionEnd ||
+        currentWord === startChar
+      ) {
+        return {
+          ...state,
+          editor: {
+            ...getEditorData(action.payload.el, startChar, endChar),
+          },
+        };
+      } else if (currentWordEnd === action.payload.el.selectionEnd) {
+        return {
+          ...state,
+          editor: {
+            ...getEditorData(action.payload.el, startChar, endChar),
+          },
+        };
+      }
+
+      return {
+        ...state,
+        editor: {
+          ...getEditorData(action.payload.el, action.payload.type),
+        },
+      };
     default:
       return state;
   }
@@ -282,6 +324,16 @@ export const Editor: React.FC<EditorProps> = ({
           }
           if (CtrlCmd && event.key === 'i') {
             dispatch({ type: 'ToggleItalic', payload: editor });
+          }
+          if (['[', '(', '{'].includes(event.key)) {
+            dispatch({
+              type: 'Enclose',
+              payload: {
+                el: editor,
+                type: event.key as '[' | '(' | '{',
+              },
+            });
+            event.preventDefault();
           }
         }
       };
