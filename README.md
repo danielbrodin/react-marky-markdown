@@ -1,5 +1,6 @@
 # React Marky Markdown
-[![npm version](https://badge.fury.io/js/react-marky-markdown.svg)](https://badge.fury.io/js/react-marky-markdown)
+[![npm version](https://badge.fury.io/js/react-marky-markdown.svg)](https://badge.fury.io/js/react-marky-markdown) 
+![](https://github.com/danielbrodin/react-marky-markdown/workflows/Test/badge.svg)
 
 A clean markdown editor for react.
 
