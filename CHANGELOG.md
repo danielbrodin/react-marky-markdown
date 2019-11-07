@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Add autocomplete for enclosing types like `(` and `[`
+- Double enter when in a list will now exit the list.
 
 ## 0.4.0 2019-10-29
 ### Added
