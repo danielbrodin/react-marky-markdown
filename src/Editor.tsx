@@ -7,6 +7,7 @@ import {
   getRowAtPosition,
   isCtrlCmd,
   toggleWordWrap,
+  getRows,
 } from './helpers';
 
 type TextAreaProps = Omit<TextareaAutosize.Props, 'onChange'>;
@@ -52,6 +53,10 @@ type ListItemAction = {
     type: 'ul' | 'ol';
   };
 };
+type ClearListAction = {
+  type: 'ClearList';
+  payload: HTMLTextAreaElement;
+};
 type BoldAction = {
   type: 'ToggleBold';
   payload: HTMLTextAreaElement;
@@ -73,6 +78,7 @@ type Action =
   | EditorSizeAction
   | TabAction
   | ListItemAction
+  | ClearListAction
   | BoldAction
   | ItalicAction
   | EncloseAction;
@@ -169,6 +175,22 @@ function reducer(state: State, action: Action) {
         ...state,
         editor: {
           ...getEditorData(action.payload.el, listValue),
+        },
+      };
+    case 'ClearList':
+      const { rows, currentIndex } = getRows(
+        action.payload.value,
+        action.payload.selectionStart
+      );
+      const updatedRows = [...rows];
+      updatedRows[currentIndex] = '';
+
+      action.payload.value = updatedRows.join('\n');
+
+      return {
+        ...state,
+        editor: {
+          ...getEditorData(action.payload),
         },
       };
     case 'ToggleBold':
@@ -298,7 +320,16 @@ export const Editor: React.FC<EditorProps> = ({
             const olRegex = new RegExp(/^[0-9]. /);
             const isUL = rowStartingChar === '- ';
             const isOL = olRegex.test(row);
+
             if (isUL || isOL) {
+              if (
+                (isUL && row === rowStartingChar) ||
+                (isOL && row.substr(0, 3) === row)
+              ) {
+                dispatch({ type: 'ClearList', payload: editor });
+                return;
+              }
+
               dispatch({
                 type: 'AddListItem',
                 payload: {
