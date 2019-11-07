@@ -26,6 +26,7 @@ interface EditorData {
   currentWord: string;
   value: string;
   valueUpToStart: string;
+  lastSelectionStart: number;
 }
 
 interface State {
@@ -114,10 +115,9 @@ function getEditorData(
 
   if (insertStart || insertEnd) {
     if (hasSelected) {
-      el.setSelectionRange(
-        caretStart - (insertStart || '').length,
-        caretEnd + (insertEnd || '').length
-      );
+      caretStart = caretStart - (insertStart || '').length;
+      caretEnd = caretEnd + (insertEnd || '').length;
+      el.setSelectionRange(caretStart, caretEnd);
     } else {
       el.setSelectionRange(caretStart, caretStart);
     }
@@ -129,6 +129,7 @@ function getEditorData(
     value,
     currentWord,
     valueUpToStart,
+    lastSelectionStart: caretStart,
   };
 }
 
@@ -251,6 +252,7 @@ const initialState: State = {
     currentWord: '',
     value: '',
     valueUpToStart: '',
+    lastSelectionStart: 0,
   },
   width: 0,
   height: 0,
@@ -365,6 +367,31 @@ export const Editor: React.FC<EditorProps> = ({
               },
             });
             event.preventDefault();
+          }
+
+          if ([']', ')', '}'].includes(event.key)) {
+            const noSelection = editor.selectionStart === editor.selectionEnd;
+            const currentPosition = editor.selectionStart;
+            const lastPosition = state.editor.lastSelectionStart;
+            const lastCharacter = editor.value.substring(
+              currentPosition - 1,
+              currentPosition
+            );
+            const matching: any = { ')': '(', ']': '[', '}': '{' };
+            const eventKey: any = event.key;
+            const matchingCharacter = matching[eventKey];
+
+            if (
+              noSelection &&
+              currentPosition === lastPosition &&
+              lastCharacter === matchingCharacter
+            ) {
+              editor.setSelectionRange(
+                currentPosition + 1,
+                currentPosition + 1
+              );
+              event.preventDefault();
+            }
           }
         }
       };
