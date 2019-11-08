@@ -23,7 +23,7 @@ const App = () => {
   );
 
   const handleChange = (value: string) => {
-    setValue(value);
+    // setValue(value);
   };
 
   const handleSingleLineChange = (value: string) => {

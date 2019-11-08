@@ -370,22 +370,12 @@ export const Editor: React.FC<EditorProps> = ({
           }
 
           if ([']', ')', '}'].includes(event.key)) {
-            const noSelection = editor.selectionStart === editor.selectionEnd;
+            const noSelection: boolean =
+              editor.selectionStart === editor.selectionEnd;
             const currentPosition = editor.selectionStart;
-            const lastPosition = state.editor.lastSelectionStart;
-            const lastCharacter = editor.value.substring(
-              currentPosition - 1,
-              currentPosition
-            );
-            const matching: any = { ')': '(', ']': '[', '}': '{' };
-            const eventKey: any = event.key;
-            const matchingCharacter = matching[eventKey];
+            const nextCharacater: string = editor.value[editor.selectionStart];
 
-            if (
-              noSelection &&
-              currentPosition === lastPosition &&
-              lastCharacter === matchingCharacter
-            ) {
+            if (noSelection && nextCharacater === event.key) {
               editor.setSelectionRange(
                 currentPosition + 1,
                 currentPosition + 1
