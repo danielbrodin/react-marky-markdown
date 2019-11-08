@@ -12,7 +12,7 @@ import {
 
 type TextAreaProps = Omit<TextareaAutosize.Props, 'onChange'>;
 
-interface EditorProps extends TextAreaProps {
+export interface EditorProps extends TextAreaProps {
   defaultValue?: string;
   disableFormatting?: boolean;
   singleLine?: boolean;

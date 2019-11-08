@@ -6,17 +6,13 @@ interface MentionData {
   label: string;
 }
 
-interface MarkdownMentionProps {
+export interface MentionProps {
   prefix: string;
   data: MentionData[];
   onSearch?(value: string): void;
 }
 
-export const Mention: React.FC<MarkdownMentionProps> = ({
-  prefix,
-  data,
-  onSearch,
-}) => {
+export const Mention: React.FC<MentionProps> = ({ prefix, data, onSearch }) => {
   const { state, dispatch, editorRef } = useEditor();
   const { currentWord, valueUpToStart, value } = state.editor;
   const { width } = state;
