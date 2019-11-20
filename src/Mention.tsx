@@ -47,7 +47,12 @@ export const Mention: React.FC<MentionProps> = ({
   const [forceHide, setForceHide] = React.useState<boolean>(false);
 
   const filtered = data
-    .filter(item => fuzzySearch(withoutPrefix, `${item.value}${item.label}`))
+    .filter(item =>
+      fuzzySearch(
+        withoutPrefix.toLowerCase(),
+        `${item.value}${item.label}`.toLowerCase()
+      )
+    )
     .slice(0, maxItems);
 
   React.useEffect(() => {
