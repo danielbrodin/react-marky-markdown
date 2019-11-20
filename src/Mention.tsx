@@ -10,9 +10,33 @@ export interface MentionProps {
   prefix: string;
   data: MentionData[];
   onSearch?(value: string): void;
+  maxItems?: number;
 }
 
-export const Mention: React.FC<MentionProps> = ({ prefix, data, onSearch }) => {
+function fuzzySearch(needle: string, haystack: string): boolean {
+  if (needle.length > haystack.length) {
+    return false;
+  }
+
+  outer: for (let i = 0, j = 0; i < needle.length; i++) {
+    const nch = needle.charCodeAt(i);
+    while (j < haystack.length) {
+      if (haystack.charCodeAt(j++) === nch) {
+        continue outer;
+      }
+    }
+    return false;
+  }
+
+  return true;
+}
+
+export const Mention: React.FC<MentionProps> = ({
+  prefix,
+  data,
+  onSearch,
+  maxItems,
+}) => {
   const { state, dispatch, editorRef } = useEditor();
   const { currentWord, valueUpToStart, value } = state.editor;
   const { width } = state;
@@ -20,12 +44,15 @@ export const Mention: React.FC<MentionProps> = ({ prefix, data, onSearch }) => {
   const [[x, y], setPosition] = React.useState<[number, number]>([0, 0]);
   const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
   const withoutPrefix = currentWord.replace(prefix, '');
+  const [forceHide, setForceHide] = React.useState<boolean>(false);
 
-  const filtered = data.filter(item =>
-    `${item.value}${item.label}`
-      .toLowerCase()
-      .includes(withoutPrefix.toLowerCase())
-  );
+  const filtered = data
+    .filter(item => fuzzySearch(withoutPrefix, `${item.value}${item.label}`))
+    .slice(0, maxItems);
+
+  React.useEffect(() => {
+    setForceHide(false);
+  }, [withoutPrefix]);
 
   React.useEffect(() => {
     if (show && onSearch) {
@@ -83,6 +110,9 @@ export const Mention: React.FC<MentionProps> = ({ prefix, data, onSearch }) => {
         setSelectedIndex(0);
       }
       const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          setForceHide(true);
+        }
         if (event.key === 'Enter') {
           const selectedValue = filtered[selectedIndex] || filtered[0];
           if (!selectedValue) {
@@ -125,7 +155,7 @@ export const Mention: React.FC<MentionProps> = ({ prefix, data, onSearch }) => {
     insertValue,
   ]);
 
-  if (!show || !editorRef.current) {
+  if (!show || !editorRef.current || forceHide) {
     return null;
   }
 
